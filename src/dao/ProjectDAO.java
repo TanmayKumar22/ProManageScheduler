@@ -57,7 +57,7 @@ public class ProjectDAO {
         return list;
     }
 
-    // 🔥 🔥 🔥 THIS METHOD WAS MISSING 🔥 🔥 🔥
+   
     public void updateProjectStatus(Project p) {
 
         String sql = "UPDATE projects SET completed_days = ?, status = ? WHERE id = ?";
