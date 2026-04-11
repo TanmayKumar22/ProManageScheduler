@@ -3,58 +3,61 @@ package service;
 import dao.ProjectDAO;
 import model.Project;
 
-import java.util.Comparator;
 import java.util.List;
 
 public class Scheduler {
 
-    private static final String[] DAYS = {
-            "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"
-    };
-
-    // ✅ SAME METHOD NAME USED EVERYWHERE
-    public static void generateSchedule(List<Project> projects) {
-
-        projects.sort(Comparator.comparingInt(Project::getRevenue).reversed());
+    public static void runWeeklyScheduler() {
 
         ProjectDAO dao = new ProjectDAO();
+        int week = service.WeekManager.getCurrentWeek();
 
-        int dayIndex = 0;
-        int week = 1;
-        int totalRevenue = 0;
+        System.out.println("\n===== SATURDAY PLANNING FOR WEEK " + week + " =====");
 
-        System.out.println("\n📆 Week " + week);
+        List<Project> projects = dao.getAllProjects();
+
+        // 🔹 Filter valid projects
+        projects.removeIf(p ->
+                p.getArrivalWeek() > week ||
+                        p.getStatus().equalsIgnoreCase("COMPLETED"));
+
+        // 🔹 Sort by score (highest first)
+        projects.sort((a, b) ->
+                Double.compare(b.getScore(), a.getScore()));
+
+        int daysAvailable = 5;
 
         for (Project p : projects) {
 
-            int remainingDays = p.getTotalDays() - p.getCompletedDays();
+            int workDays = Math.min(p.getRemainingDays(), daysAvailable);
 
-            while (remainingDays > 0) {
+            for (int i = 0; i < workDays; i++) {
 
-                if (dayIndex != 0 && dayIndex % 5 == 0) {
-                    week++;
-                    System.out.println("\n📆 Week " + week);
-                }
+                System.out.println("Week " + week +
+                        " Day " + (6 - daysAvailable) +
+                        " → " + p.getTitle());
 
-                String dayName = DAYS[dayIndex % 5];
-                System.out.println(dayName + " → " + p.getTitle());
-
-                dayIndex++;
-                remainingDays--;
                 p.setCompletedDays(p.getCompletedDays() + 1);
-            }
-
-            if (p.getCompletedDays() == p.getTotalDays()) {
-                p.setStatus("COMPLETED");
-                totalRevenue += p.getRevenue();
-            } else {
                 p.setStatus("IN_PROGRESS");
+
+                daysAvailable--;
             }
 
-            // 🔥 Update DB
+            // 🔹 Mark completed
+            if (p.getRemainingDays() == 0) {
+                p.setStatus("COMPLETED");
+                p.setCompletionWeek(week);
+            }
+
+            // 🔹 SAVE TO DB (FIXED)
             dao.updateProjectStatus(p);
+
+            if (daysAvailable == 0)
+                break;
         }
 
-        System.out.println("\n💰 Total Revenue: " + totalRevenue);
+        System.out.println("===== WEEK " + week + " COMPLETED =====");
+
+        service.WeekManager.nextWeek();
     }
 }

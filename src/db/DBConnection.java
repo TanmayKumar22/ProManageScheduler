@@ -8,7 +8,7 @@ public class DBConnection {
 
     private static final String URL = "jdbc:postgresql://localhost:5432/promanage";
     private static final String USER = "postgres";
-    private static final String PASS = "your_password";
+    private static final String PASS = "Tanmay@22";
 
     public static Connection getConnection() {
 

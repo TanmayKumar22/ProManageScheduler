@@ -4,101 +4,81 @@ public class Project {
 
     private int id;
     private String title;
-
-    // total working days required to complete project
     private int totalDays;
-
-    // days already completed
     private int completedDays;
-
+    private int deadlineDays;
     private int revenue;
-
-    // PENDING / IN_PROGRESS / COMPLETED
+    private int penaltyPerDay;
     private String status;
+    private int arrivalWeek;
+    private int completionWeek;
 
-    // 🔹 Default constructor
-    public Project() {
-    }
+    public Project() {}
 
-    // 🔹 Constructor without id (for insert)
-    public Project(String title, int totalDays, int revenue) {
+    public Project(String title, int totalDays, int deadlineDays,
+                   int revenue, int penaltyPerDay, int arrivalWeek) {
+
         this.title = title;
         this.totalDays = totalDays;
+        this.deadlineDays = deadlineDays;
         this.revenue = revenue;
+        this.penaltyPerDay = penaltyPerDay;
+        this.arrivalWeek = arrivalWeek;
         this.completedDays = 0;
         this.status = "PENDING";
+        this.completionWeek = 0;
     }
 
-    // 🔹 Full constructor (for DB fetch)
-    public Project(int id, String title, int totalDays, int completedDays, int revenue, String status) {
+    public Project(int id, String title, int totalDays, int completedDays,
+                   int deadlineDays, int revenue, int penaltyPerDay,
+                   String status, int arrivalWeek, int completionWeek) {
+
         this.id = id;
         this.title = title;
         this.totalDays = totalDays;
         this.completedDays = completedDays;
+        this.deadlineDays = deadlineDays;
         this.revenue = revenue;
+        this.penaltyPerDay = penaltyPerDay;
         this.status = status;
+        this.arrivalWeek = arrivalWeek;
+        this.completionWeek = completionWeek;
     }
 
-    // 🔹 Getters & Setters
-
-    public int getId() {
-        return id;
+    public int getRemainingDays() {
+        return totalDays - completedDays;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public double getScore() {
+        return (revenue / (double) totalDays)
+                + (1.0 / deadlineDays)
+                + (1.0 / arrivalWeek);  // older project priority
     }
 
-    public String getTitle() {
-        return title;
-    }
+    // Getters
+    public int getId() { return id; }
+    public String getTitle() { return title; }
+    public int getTotalDays() { return totalDays; }
+    public int getCompletedDays() { return completedDays; }
+    public int getDeadlineDays() { return deadlineDays; }
+    public int getRevenue() { return revenue; }
+    public int getPenaltyPerDay() { return penaltyPerDay; }
+    public String getStatus() { return status; }
+    public int getArrivalWeek() { return arrivalWeek; }
+    public int getCompletionWeek() { return completionWeek; }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+    // Setters
+    public void setCompletedDays(int completedDays) { this.completedDays = completedDays; }
+    public void setStatus(String status) { this.status = status; }
+    public void setCompletionWeek(int completionWeek) { this.completionWeek = completionWeek; }
 
-    public int getTotalDays() {
-        return totalDays;
-    }
-
-    public void setTotalDays(int totalDays) {
-        this.totalDays = totalDays;
-    }
-
-    public int getCompletedDays() {
-        return completedDays;
-    }
-
-    public void setCompletedDays(int completedDays) {
-        this.completedDays = completedDays;
-    }
-
-    public int getRevenue() {
-        return revenue;
-    }
-
-    public void setRevenue(int revenue) {
-        this.revenue = revenue;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    // 🔹 For clean console output
     @Override
     public String toString() {
-        return "Project{" +
-                "ID=" + id +
-                ", Title='" + title + '\'' +
-                ", TotalDays=" + totalDays +
-                ", CompletedDays=" + completedDays +
-                ", Revenue=" + revenue +
-                ", Status='" + status + '\'' +
-                '}';
+        return "ID=" + id +
+                ", Title=" + title +
+                ", Remaining=" + getRemainingDays() +
+                ", Status=" + status +
+                ", ArrivalWeek=" + arrivalWeek +
+                ", CompletionWeek=" + completionWeek;
     }
 }
